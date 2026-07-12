@@ -1,0 +1,109 @@
+// Package suggest offers lightweight "did you mean X?" suggestions by
+// comparing an unknown identifier against a curated list of common,
+// frequently-mistyped symbols for each language.
+package suggest
+
+import "strings"
+
+var dictionaries = map[string][]string{
+	"cpp": {
+		"cout", "cin", "cerr", "endl", "std", "string", "vector", "map", "set",
+		"pair", "size", "push_back", "pop_back", "begin", "end", "size_t",
+		"nullptr", "const", "static_cast", "dynamic_cast", "namespace",
+		"iostream", "algorithm", "sort", "find", "length", "substr",
+	},
+	"python": {
+		"print", "len", "range", "str", "int", "float", "list", "dict", "set",
+		"tuple", "self", "append", "extend", "items", "keys", "values",
+		"enumerate", "zip", "open", "input", "True", "False", "None",
+		"import", "return", "yield", "except", "finally",
+	},
+	"go": {
+		"fmt", "Println", "Printf", "Sprintf", "error", "nil", "string", "int",
+		"append", "make", "len", "cap", "range", "struct", "interface",
+		"func", "package", "import", "defer", "panic", "recover",
+	},
+	"javascript": {
+		"console", "log", "document", "window", "function", "return", "const",
+		"let", "var", "undefined", "null", "length", "push", "map", "filter",
+		"reduce", "forEach", "Promise", "async", "await", "require", "module",
+	},
+	"java": {
+		"System", "out", "println", "String", "Integer", "List", "ArrayList",
+		"Map", "HashMap", "length", "size", "toString", "equals", "public",
+		"private", "static", "void", "class", "new",
+	},
+}
+
+// Suggest returns the closest known symbol for the given language, if
+// any candidate is within an edit-distance of 2 and reasonably close in
+// length. Returns "" if nothing close enough is found.
+func Suggest(language, symbol string) string {
+	if symbol == "" {
+		return ""
+	}
+	candidates, ok := dictionaries[language]
+	if !ok {
+		return ""
+	}
+	lower := strings.ToLower(symbol)
+	best := ""
+	bestDist := 1 << 30
+	for _, c := range candidates {
+		if strings.EqualFold(c, symbol) {
+			continue // identical, not a "did you mean"
+		}
+		d := levenshtein(lower, strings.ToLower(c))
+		if d < bestDist {
+			bestDist = d
+			best = c
+		}
+	}
+	maxDist := 2
+	if len(symbol) <= 3 {
+		maxDist = 1
+	}
+	if best != "" && bestDist <= maxDist {
+		return best
+	}
+	return ""
+}
+
+// levenshtein computes classic edit distance between two strings.
+func levenshtein(a, b string) int {
+	ra, rb := []rune(a), []rune(b)
+	la, lb := len(ra), len(rb)
+	if la == 0 {
+		return lb
+	}
+	if lb == 0 {
+		return la
+	}
+	prev := make([]int, lb+1)
+	curr := make([]int, lb+1)
+	for j := 0; j <= lb; j++ {
+		prev[j] = j
+	}
+	for i := 1; i <= la; i++ {
+		curr[0] = i
+		for j := 1; j <= lb; j++ {
+			cost := 1
+			if ra[i-1] == rb[j-1] {
+				cost = 0
+			}
+			del := prev[j] + 1
+			ins := curr[j-1] + 1
+			sub := prev[j-1] + cost
+			m := del
+			if ins < m {
+				m = ins
+			}
+			if sub < m {
+				m = sub
+			}
+			curr[j] = m
+		}
+		prev, curr = curr, prev
+	}
+	return prev[lb]
+}
