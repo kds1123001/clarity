@@ -36,13 +36,13 @@ It's not a linter and it's not a language server. It doesn't need your build sys
 ## Install
 
 ```bash
-go install github.com/YOUR_USERNAME/clarity@latest
+go install github.com/kds1123001/clarity@latest
 ```
 
 Or build from source:
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/clarity.git
+git clone https://github.com/kds1123001/clarity.git
 cd clarity
 make install   # builds and installs to $GOPATH/bin
 ```
