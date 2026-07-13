@@ -18,8 +18,8 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/YOUR_USERNAME/clarity/internal/parser"
-	"github.com/YOUR_USERNAME/clarity/internal/report"
+	"github.com/kds1123001/clarity/internal/parser"
+	"github.com/kds1123001/clarity/internal/report"
 )
 
 func main() {
