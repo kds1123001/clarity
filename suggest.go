@@ -1,3 +1,4 @@
+//bleh
 // Package parser turns raw, messy compiler/interpreter output into a
 // structured list of Diagnostics: file, line, column, message.
 package parser
