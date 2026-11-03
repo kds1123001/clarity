@@ -2,10 +2,10 @@ name: release
 
 on:
   push:
-    tags: ["v*"]            # e.g. git tag v0.1.0 && git push --tags
+    tags: ["v*"]            
 
 permissions:
-  contents: write           # needed to create the GitHub Release
+  contents: write      
 
 jobs:
   goreleaser:
@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0    # GoReleaser needs full history for the changelog
+          fetch-depth: 0  
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
@@ -25,5 +25,4 @@ jobs:
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Optional. Leave the secret unset for the first release.
           WINGET_GITHUB_TOKEN: ${{ secrets.WINGET_GITHUB_TOKEN }}
