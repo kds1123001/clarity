@@ -1,6 +1,4 @@
-# GoReleaser config: builds clarity for Windows/macOS/Linux, publishes a GitHub
-# Release, and generates (and optionally submits) a winget manifest.
-# Docs: https://goreleaser.com/customization/
+
 version: 2
 project_name: clarity
 
@@ -9,7 +7,7 @@ builds:
     main: .
     binary: clarity
     env:
-      - CGO_ENABLED=0           # static binary, no runtime dependencies
+      - CGO_ENABLED=0           
     goos: [windows, linux, darwin]
     goarch: [amd64, arm64]
     flags: [-trimpath]
@@ -21,7 +19,7 @@ archives:
     name_template: "clarity_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
     format_overrides:
       - goos: windows
-        formats: [zip]          # winget installs from the Windows .zip
+        formats: [zip]        
     files:
       - LICENSE
       - README.md
@@ -39,15 +37,11 @@ release:
     owner: kds1123001
     name: clarity
 
-# ---- winget ---------------------------------------------------------------
-# Generates the manifest files. If WINGET_GITHUB_TOKEN is set, it also pushes
-# them to YOUR fork of microsoft/winget-pkgs and opens a pull request.
-# Without the token it only generates them (skip_upload), so first releases
-# work with zero extra setup.
+
 winget:
   - name: clarity
     publisher: kds1123001
-    package_identifier: kds1123001.Clarity     # what users type: winget install kds1123001.Clarity
+    package_identifier: kds1123001.Clarity   
     short_description: Turns cryptic compiler/runtime errors into plain-English explanations.
     description: |
       Clarity wraps the output of any compiler or interpreter, points at the exact
