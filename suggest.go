@@ -1,6 +1,5 @@
 //bleh
-// Package parser turns raw, messy compiler/interpreter output into a
-// structured list of Diagnostics: file, line, column, message.
+
 package parser
 
 import (
@@ -10,7 +9,7 @@ import (
 	"strings"
 )
 
-// Diagnostic is one located error or warning.
+
 type Diagnostic struct {
 	File     string
 	Line     int
@@ -20,18 +19,12 @@ type Diagnostic struct {
 	Language string
 }
 
-// genericLineRE matches the near-universal "file:line:col: message" or
-// "file:line: message" format used by gcc, clang, go, rustc, javac, etc.
+
 var genericLineRE = regexp.MustCompile(
 	`^([^\s:][^:]*\.[A-Za-z0-9]+):(\d+):(?:(\d+):)?\s*(?:(fatal error|error|warning|note)\s*:\s*)?(.+)$`,
 )
 
-// linkerLineRE matches ld-style lines like:
-//
-//	main.cpp:(.text+0x9): undefined reference to `doThing()'
-//
-// These have no line number, only a section offset, so we surface them
-// without a source snippet.
+
 var linkerLineRE = regexp.MustCompile(`^([^\s:]+\.[A-Za-z0-9+]+):\([^)]*\):\s*(.+)$`)
 
 var pyFileLineRE = regexp.MustCompile(`^\s*File "([^"]+)", line (\d+), in (.+)$`)
@@ -47,8 +40,7 @@ var cmdLanguage = map[string]string{
 	"rustc": "rust", "cargo": "rust",
 }
 
-// extLanguage maps a file extension to a language tag, used as a fallback
-// when we can't tell from the command name (e.g. piped input).
+
 var extLanguage = map[string]string{
 	".cpp": "cpp", ".cc": "cpp", ".cxx": "cpp", ".h": "cpp", ".hpp": "cpp",
 	".c":  "cpp",
@@ -59,8 +51,7 @@ var extLanguage = map[string]string{
 	".rs":   "rust",
 }
 
-// DetectLanguage tries the command name first, then falls back to sniffing
-// the output for recognizable markers or file extensions.
+
 func DetectLanguage(cmdName, output string) string {
 	base := filepath.Base(cmdName)
 	if lang, ok := cmdLanguage[base]; ok {
@@ -79,7 +70,7 @@ func DetectLanguage(cmdName, output string) string {
 	return "generic"
 }
 
-// Parse dispatches to the right strategy based on language.
+
 func Parse(language, output string) []Diagnostic {
 	if language == "python" || strings.Contains(output, "Traceback (most recent call last):") {
 		if diags := parsePythonTraceback(output); len(diags) > 0 {
@@ -184,8 +175,7 @@ func parsePythonTraceback(output string) []Diagnostic {
 			haveFrame = true
 			continue
 		}
-		// An unindented line starting with an identifier + Error/Exception
-		// marks the end of the traceback.
+		
 		if strings.TrimSpace(line) == "" {
 			continue
 		}
